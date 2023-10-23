@@ -1,17 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:flutter_camera_test/custom_painter.dart';
-import 'package:flutter_camera_test/resizable_widget.dart';
-import 'package:flutter_camera_test/show_file_page.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_camera_test/pages/show_file_page.dart';
+import 'package:flutter_camera_test/resizable_widget/custom_painter.dart';
+import 'package:flutter_camera_test/resizable_widget/model/resizable_widget_model.dart';
+import 'package:flutter_camera_test/resizable_widget/resizable_widget.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:widget_mask/widget_mask.dart';
 
 late List<CameraDescription> _cameras;
 
@@ -19,7 +17,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   _cameras = await availableCameras();
-  runApp(MaterialApp(home: const OCRPage()));
+  runApp(const MaterialApp(home: OCRPage()));
 }
 
 /// CameraApp is the Main Application.
@@ -33,8 +31,12 @@ class OCRPage extends StatefulWidget {
 
 class _OCRPageState extends State<OCRPage> {
   late CameraController controller;
-  double? captureHeight, captureWidth, captureTop, captureLeft;
-  double screenHeight = 200, screenWidth = 200;
+  double? captureHeight;
+  double? captureWidth;
+  double? captureTop;
+  double? captureLeft;
+  double screenHeight = 200;
+  double screenWidth = 200;
   ValueNotifier<int> selectedItemValue = ValueNotifier(0);
   final ImagePicker _imagePicker = ImagePicker();
   ScreenshotController screenshotController = ScreenshotController();
@@ -84,24 +86,28 @@ class _OCRPageState extends State<OCRPage> {
           children: [
             Positioned.fill(child: CameraPreview(controller)),
             ResizableWidget(
-              top: screenHeight,
-              left: screenWidth,
-              height: 200,
-              width: 300,
-              values: (height, width, top, left) {
-                captureHeight = height;
-                captureWidth = width;
-                captureTop = top;
-                captureLeft = left;
+              resizableWidgetModel: ResizableWidgetModel(
+                height: 200,
+                width: 300,
+                top: screenHeight,
+                left: screenWidth,
+              ),
+              values: (resizableWidget) {
+                captureHeight = resizableWidget.height;
+                captureWidth = resizableWidget.width;
+                captureTop = resizableWidget.top;
+                captureLeft = resizableWidget.left;
               },
               child: CustomPaint(
                 child: Container(
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                          color: Colors.black.withOpacity(0.3),
-                          width: 100000,
-                          strokeAlign: BorderSide.strokeAlignOutside)),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.black.withOpacity(0.3),
+                      width: 100000,
+                      strokeAlign: BorderSide.strokeAlignOutside,
+                    ),
+                  ),
                   child: CustomPaint(
                     foregroundPainter: BorderPainter(),
                   ),
@@ -112,21 +118,24 @@ class _OCRPageState extends State<OCRPage> {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.5),
-                          Colors.black.withOpacity(0.8),
-                        ])),
-                    height: 200,
-                    child: Column(
-                      children: [scrollView(), bottomBar()],
-                    )),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.5),
+                        Colors.black.withOpacity(0.8),
+                      ],
+                    ),
+                  ),
+                  height: 200,
+                  child: Column(
+                    children: [scrollView(), bottomBar()],
+                  ),
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -137,20 +146,24 @@ class _OCRPageState extends State<OCRPage> {
         children: [
           Positioned.fill(child: CameraPreview(controller)),
           ResizableWidget(
-            height: captureHeight!,
-            width: captureWidth!,
-            top: captureTop!,
-            left: captureLeft!,
+            resizableWidgetModel: ResizableWidgetModel(
+              height: captureHeight!,
+              width: captureWidth!,
+              top: captureTop!,
+              left: captureLeft!,
+            ),
             mock: true,
-            values: (double height, double width, double top, double left) {},
+            values: (resizableWidget) {},
             child: CustomPaint(
               child: Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                        color: Colors.white,
-                        width: 100000,
-                        strokeAlign: BorderSide.strokeAlignOutside)),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 100000,
+                    strokeAlign: BorderSide.strokeAlignOutside,
+                  ),
+                ),
                 child: CustomPaint(
                   foregroundPainter: BorderPainter(),
                 ),
@@ -162,7 +175,7 @@ class _OCRPageState extends State<OCRPage> {
 
   Widget bottomBar() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0, left: 70, right: 70),
+      padding: const EdgeInsets.only(bottom: 8, left: 70, right: 70),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -187,7 +200,7 @@ class _OCRPageState extends State<OCRPage> {
           const SizedBox(
             height: 45,
             width: 45,
-          )
+          ),
         ],
       ),
     );
@@ -195,46 +208,47 @@ class _OCRPageState extends State<OCRPage> {
 
   Widget get cameraButton => GestureDetector(
         onTap: () {
-          print(captureHeight);
-          print(captureWidth);
-          print(captureTop);
-          print(captureLeft);
           screenshotController
               .captureFromWidget(
             captureWidget,
           )
               .then((image) {
-            Navigator.of(context).push(MaterialPageRoute(
+            Navigator.of(context).push(
+              MaterialPageRoute<dynamic>(
                 builder: (context) => ShowFilePage(
-                      file: image!,
-                    )));
+                  file: image,
+                ),
+              ),
+            );
           });
         },
         child: Container(
           height: 70,
           width: 70,
           decoration:
-              BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+              const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
           child: Padding(
-            padding: const EdgeInsets.all(2.0),
+            padding: const EdgeInsets.all(2),
             child: Container(
               height: 70,
               width: 70,
               decoration: BoxDecoration(
-                  border: Border.all(color: Colors.black, width: 2),
-                  color: Colors.white,
-                  shape: BoxShape.circle),
+                border: Border.all(width: 2),
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
             ),
           ),
         ),
       );
 
-  Future _getImageFromGallery(ImageSource source) async {
+  Future<dynamic> _getImageFromGallery(ImageSource source) async {
     setState(() {});
     final pickedFile = await _imagePicker.pickImage(
-        source: source, preferredCameraDevice: CameraDevice.rear);
+      source: source,
+    );
     if (pickedFile != null) {
-      CroppedFile? croppedFile = await ImageCropper().cropImage(
+      final croppedFile = await ImageCropper().cropImage(
         sourcePath: pickedFile.path,
         aspectRatioPresets: Platform.isAndroid
             ? [
@@ -242,7 +256,7 @@ class _OCRPageState extends State<OCRPage> {
                 CropAspectRatioPreset.ratio3x2,
                 CropAspectRatioPreset.original,
                 CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio16x9
+                CropAspectRatioPreset.ratio16x9,
               ]
             : [
                 CropAspectRatioPreset.original,
@@ -252,15 +266,16 @@ class _OCRPageState extends State<OCRPage> {
                 CropAspectRatioPreset.ratio5x3,
                 CropAspectRatioPreset.ratio5x4,
                 CropAspectRatioPreset.ratio7x5,
-                CropAspectRatioPreset.ratio16x9
+                CropAspectRatioPreset.ratio16x9,
               ],
         uiSettings: [
           AndroidUiSettings(
-              toolbarTitle: 'Kırpıcı',
-              toolbarColor: Colors.deepOrange,
-              toolbarWidgetColor: Colors.white,
-              initAspectRatio: CropAspectRatioPreset.original,
-              lockAspectRatio: false),
+            toolbarTitle: 'Kırpıcı',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+          ),
           IOSUiSettings(
             title: 'Kırpıcı',
             // doneButtonTitle: "done".tr,
@@ -270,116 +285,50 @@ class _OCRPageState extends State<OCRPage> {
       );
 
       if (croppedFile != null) {
-        File file = File(croppedFile.path);
-        debugPrint("");
+        // final File file = File(croppedFile.path);
+        debugPrint('');
         // _processPickedFile(file);
       }
     }
   }
 
-  Future _processPickedFile(File? pickedFile) async {
-    String app_id = "xxx";
-    String app_key = "xxx";
-    List<int> image_bytes = pickedFile!.readAsBytesSync();
-    String image_data = base64Encode(image_bytes);
-    print(image_data.characters);
-    Map<String, dynamic> params = {
-      "src": "data:image/jpg;base64,$image_data",
-      "data_options": {"include_asciimath": true, "include_latex": true}
-    };
-
-    Map<String, String> headers = {
-      "app_id": app_id,
-      "app_key": app_key,
-      "Content-type": "application/json"
-    };
-    var response = await http.post(
-      Uri.parse("https://api.mathpix.com/v3/text"),
-      body: jsonEncode(params),
-      headers: headers,
-    );
-    var data = jsonDecode(response.body);
-    print(convertToLatex(data['text']));
-  }
-
-  ///Network
-
-//  void _processPickedFile() async {
-//     var url = Uri.parse('https://api.mathpix.com/v3/text');
-
-//     String app_id = "xxx";
-//     String app_key =
-//         "xxx";
-//     var image_url =
-//         'https://mathpix-ocr-examples.s3.amazonaws.com/cases_hw.jpg';
-//     var format = 'latex_simplified';
-//     var headers = {
-//       'app_id': app_id,
-//       'app_key': app_key,
-//       'Content-type': 'application/json'
-//     };
-//     var body = jsonEncode({
-//       "src": image_url,
-//       // 'formats': [format],
-//       'data_options': {
-//         'include_latex': true,
-//         'include_asciimath': true,
-//         'include_mathml': true
-//       }
-//     });
-
-//     var response = await http.post(url, headers: headers, body: body);
-
-//     if (response.statusCode == 200) {
-//       // Parse the response body as JSON
-//       var data = jsonDecode(response.body);
-
-//       print(data);
-//     } else {
-//       // Print the error message
-//       print('Request failed with status: ${response.statusCode}.');
-//     }
-//   }
-
-  String convertToLatex(String mathpixCode) {
-    String latexCode =
-        mathpixCode.replaceAll("\\(", "\$\$").replaceAll("\\)", "\$\$");
-    return latexCode;
-  }
-
   Widget scrollView() {
-    List<Widget> _buildList() {
+    List<Widget> buildList() {
       return [
         RotatedBox(
           quarterTurns: 1,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Center(
-                child: ValueListenableBuilder(
-              valueListenable: selectedItemValue,
-              builder: (context, value, child) => Text(
-                "TEXT BASED",
-                style: TextStyle(
-                    fontSize: 16.0,
-                    color: value == 0 ? Colors.white : Colors.grey),
+              child: ValueListenableBuilder(
+                valueListenable: selectedItemValue,
+                builder: (context, value, child) => Text(
+                  'TEXT BASED',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: value == 0 ? Colors.white : Colors.grey,
+                  ),
+                ),
               ),
-            )),
+            ),
           ),
         ),
         RotatedBox(
           quarterTurns: 1,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Center(
-                child: ValueListenableBuilder(
-              valueListenable: selectedItemValue,
-              builder: (context, value, child) => Text(
-                "MATH BASED",
-                style: TextStyle(
-                    fontSize: 16.0,
-                    color: value == 1 ? Colors.white : Colors.grey),
+              child: ValueListenableBuilder(
+                valueListenable: selectedItemValue,
+                builder: (context, value, child) => Text(
+                  'MATH BASED',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: value == 1 ? Colors.white : Colors.grey,
+                  ),
+                ),
               ),
-            )),
+            ),
           ),
         ),
       ];
@@ -394,10 +343,8 @@ class _OCRPageState extends State<OCRPage> {
             onSelectedItemChanged: (value) => selectedItemValue.value = value,
             itemExtent: 140,
             diameterRatio: 1.5,
-            useMagnifier: false,
             physics: const FixedExtentScrollPhysics(), // Kaydırma fizikleri
-            offAxisFraction: 0,
-            children: _buildList(),
+            children: buildList(),
           ),
         ),
       ),

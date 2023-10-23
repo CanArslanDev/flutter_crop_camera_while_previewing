@@ -1,10 +1,9 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
 class ShowFilePage extends StatelessWidget {
-  const ShowFilePage({super.key, required this.file});
+  const ShowFilePage({required this.file, super.key});
   final Uint8List file;
   @override
   Widget build(BuildContext context) {

@@ -1,21 +1,19 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class BorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    double sh = size.height; // for convenient shortage
-    double sw = size.width; // for convenient shortage
-    double cornerSide = sh * 0.1; // desirable value for corners side
-    double midSide = sh * 0.05;
-    Paint paint = Paint()
+    final sh = size.height; // for convenient shortage
+    final sw = size.width; // for convenient shortage
+    final cornerSide = sh * 0.1; // desirable value for corners side
+    final midSide = sh * 0.05;
+    final paint = Paint()
       ..color = Colors.white
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    Path path = Path()
+    final path = Path()
       ..moveTo(cornerSide, 0)
       ..quadraticBezierTo(0, 0, 0, cornerSide)
       ..moveTo(0, sh - cornerSide)
