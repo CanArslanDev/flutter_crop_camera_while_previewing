@@ -1,16 +1,7 @@
-# flutter_camera_test
+# Flutter Crop Camera While Previewing
 
-A new Flutter project.
+This project allows you to crop while the flutter camera is on.
 
-## Getting Started
+<br>
+<img width="216" alt="Ekran görüntüsü 2023-10-23 103615" src="https://github.com/CanArslanDev/flutter_crop_camera_while_previewing/assets/76579053/85583c0b-f124-4c07-a90a-e1b27d9d320d">
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
